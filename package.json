@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Secure REST API for remote WireGuard peer management — runs on each Vedeno VPN node.",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": ">=22.0.0"
   },
