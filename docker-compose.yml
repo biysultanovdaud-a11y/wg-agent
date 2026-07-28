@@ -1,0 +1,30 @@
+services:
+  wg-agent:
+    build: .
+    image: wg-agent:latest
+    container_name: wg-agent
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8787:8787"
+    volumes:
+      # The node's real wg0.conf and keys live here — bind-mount the
+      # host's actual /etc/wireguard so this container manages the same
+      # interface config the host's wg-quick@wg0 systemd unit uses.
+      - /etc/wireguard:/etc/wireguard
+      # /lib/modules read-only — SYS_MODULE lets the container request the
+      # host load the wireguard kernel module if it isn't already; it
+      # still needs to find the module files to load.
+      - /lib/modules:/lib/modules:ro
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get({host:'127.0.0.1',port:process.env.PORT||8787,path:'/health',headers:{authorization:'Bearer '+process.env.API_KEY}}, r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
