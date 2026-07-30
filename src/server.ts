@@ -1,3 +1,4 @@
+import { readyRoutes } from "./routes/ready.route";
 import Fastify, { type FastifyInstance } from "fastify";
 import { env } from "./config/env";
 import { registerErrorHandler } from "./plugins/error-handler";
@@ -34,6 +35,7 @@ app.register(metricsPlugin);
 app.register(healthRoutes);
 app.register(metricsRoutes);
 // app.register(peerRoutes);
+app.register(readyRoutes);
 
   return app;
 }
