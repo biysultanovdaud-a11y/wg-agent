@@ -115,6 +115,8 @@ metrics.peerDeletions.inc();
     try {
       await this.wireguard.reload(env.WG_INTERFACE, this.configRepo.path);
     } catch (error) {
+      metrics.reloadFailures.inc();
+
       this.logger.error({ err: error }, "wg syncconf failed after config write — rolling back wg0.conf");
       await this.configRepo.restore(previousContent);
       throw error;

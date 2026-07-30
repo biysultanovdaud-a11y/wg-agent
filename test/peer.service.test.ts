@@ -135,6 +135,8 @@ describe("PeerService.createPeer", () => {
 
     await expect(service.createPeer({})).rejects.toThrow("simulated");
 
+    expect(await getMetricValue(metrics.reloadFailures)).toBeGreaterThan(0);
+
     // The whole point of the rollback contract: after a failed reload,
     // wg0.conf must read exactly as it did before the attempted change —
     // never left claiming a peer exists that the live interface doesn't have.
