@@ -34,7 +34,7 @@ app.register(metricsPlugin);
 
 app.register(healthRoutes);
 app.register(metricsRoutes);
-// app.register(peerRoutes);
+app.register(peerRoutes);
 app.register(readyRoutes);
 
   return app;

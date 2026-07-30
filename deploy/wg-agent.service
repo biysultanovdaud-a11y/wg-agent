@@ -1,0 +1,15 @@
+[Unit]
+Description=WireGuard Agent API
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/wg-agent
+EnvironmentFile=/root/wg-agent/.env
+ExecStart=/usr/bin/node /root/wg-agent/dist/index.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
