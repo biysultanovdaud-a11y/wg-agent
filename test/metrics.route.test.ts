@@ -25,5 +25,6 @@ it("returns 200 with the correct API key", async () => {
 
   expect(res.statusCode).toBe(200);
   expect(res.body).toContain("wg_agent_http_requests_total");
+  expect(res.headers["content-type"]).toContain("text/plain");
 });
 });
