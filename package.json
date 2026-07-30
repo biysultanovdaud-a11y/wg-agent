@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "close-with-grace": "^2.1.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.4.2",
     "fastify": "^4.28.1",
     "fastify-plugin": "^6.0.0",
     "pino": "^9.4.0",
