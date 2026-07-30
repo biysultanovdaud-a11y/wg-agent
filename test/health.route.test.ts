@@ -10,7 +10,11 @@ interface ErrorResponseBody {
 describe("GET /health", () => {
   it("returns 401 without an Authorization header", async () => {
     const app = buildServer();
+
+    await app.ready();
+
     const res = await app.inject({ method: "GET", url: "/health" });
+
     expect(res.statusCode).toBe(401);
     await app.close();
   });

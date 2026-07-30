@@ -3,6 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { run } from "../utils/exec";
+import { metrics } from "../metrics/registry";
 
 export class WireGuardService {
   async generatePrivateKey(): Promise<string> {
@@ -53,7 +54,11 @@ export class WireGuardService {
     try {
       await writeFile(tempConfigPath, strippedConfig, { mode: 0o600 });
       await run("wg", ["syncconf", interfaceName, tempConfigPath]);
-    } finally {
+    } catch (error) {
+      metrics.reloadFailures.inc();
+      throw error;
+    } 
+      finally {
       await rm(tempDir, { recursive: true, force: true });
     }
   }

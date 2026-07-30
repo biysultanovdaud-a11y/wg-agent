@@ -9,6 +9,7 @@ import type { WireGuardService } from "./wireguard.service";
 import { nextAvailableIp } from "../utils/ip-allocator";
 import { renderClientConfig } from "../utils/render-client-config";
 import { ConflictError, NotFoundError } from "../utils/errors";
+import { metrics } from "../metrics/registry";
 import type { CreatePeerRequest, CreatePeerResult, PeerSummary } from "../types/peer";
 
 export class PeerService {
@@ -20,11 +21,13 @@ export class PeerService {
 
   async listPeers(): Promise<PeerSummary[]> {
     const config = await this.configRepo.read();
+metrics.peerCount.set(config.peers.length);
     return config.peers.map((peer) => ({ label: peer.label, publicKey: peer.publicKey, allowedIps: peer.allowedIps }));
   }
 
   async getPeer(publicKey: string): Promise<PeerSummary> {
     const config = await this.configRepo.read();
+metrics.peerCount.set(config.peers.length);
     const peer = config.peers.find((p) => p.publicKey === publicKey);
     if (!peer) throw new NotFoundError(`No peer with public key ${publicKey}`);
     return { label: peer.label, publicKey: peer.publicKey, allowedIps: peer.allowedIps };
@@ -56,6 +59,8 @@ export class PeerService {
     };
 
     await this.applyConfig(nextConfig);
+metrics.peerCount.set(nextConfig.peers.length);
+metrics.peerCreations.inc();
 
     const serverPublicKey = await this.wireguard.derivePublicKey(extractInterfacePrivateKey(config.interfaceBlock));
     const clientConfig = renderClientConfig({
@@ -83,7 +88,10 @@ export class PeerService {
     };
 
     await this.applyConfig(nextConfig);
+metrics.peerCount.set(nextConfig.peers.length);
+metrics.peerDeletions.inc();
   }
+
 
   /**
    * Writes the new config atomically (see atomic-file: temp file, `wg-quick

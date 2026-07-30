@@ -2,10 +2,12 @@ import Fastify, { type FastifyInstance } from "fastify";
 import { env } from "./config/env";
 import { registerErrorHandler } from "./plugins/error-handler";
 import { healthRoutes } from "./routes/health.route";
+import { metricsRoutes } from "./routes/metrics.route";
 import { peerRoutes } from "./routes/peers.route";
 import { WireGuardConfigRepository } from "./repositories/wireguard-config.repository";
 import { WireGuardService } from "./services/wireguard.service";
 import { PeerService } from "./services/peer.service";
+import metricsPlugin from "./plugins/metrics";
 
 export function buildServer(): FastifyInstance {
   const app = Fastify({
@@ -27,8 +29,11 @@ export function buildServer(): FastifyInstance {
 
   registerErrorHandler(app);
 
-  app.register(healthRoutes);
-  app.register(peerRoutes);
+app.register(metricsPlugin);
+
+app.register(healthRoutes);
+app.register(metricsRoutes);
+// app.register(peerRoutes);
 
   return app;
 }
