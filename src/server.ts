@@ -30,12 +30,12 @@ export function buildServer(): FastifyInstance {
 
   registerErrorHandler(app);
 
-app.register(metricsPlugin);
+  app.register(metricsPlugin);
 
-app.register(healthRoutes);
-app.register(metricsRoutes);
-app.register(peerRoutes);
-app.register(readyRoutes);
+  app.register(healthRoutes);
+  app.register(metricsRoutes);
+  app.register(peerRoutes);
+  app.register(readyRoutes);
 
   return app;
 }

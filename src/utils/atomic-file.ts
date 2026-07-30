@@ -40,15 +40,12 @@ export async function atomicWrite(
 
   const previousContent = (await fileExists(targetPath)) ? await readFile(targetPath, "utf8") : null;
 
- const ext = path.extname(targetPath);
-const base = path.basename(targetPath, ext);
+  const ext = path.extname(targetPath);
+  const base = path.basename(targetPath, ext);
 
-const suffix = randomBytes(1).toString("hex");
+  const suffix = randomBytes(1).toString("hex");
 
-const tempPath = path.join(
-  dir,
-  `${base}.${suffix}${ext}`
-);
+  const tempPath = path.join(dir, `${base}.${suffix}${ext}`);
 
   try {
     await writeFile(tempPath, content, { mode: 0o600 });

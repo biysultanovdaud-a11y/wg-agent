@@ -57,8 +57,7 @@ export class WireGuardService {
     } catch (error) {
       metrics.reloadFailures.inc();
       throw error;
-    } 
-      finally {
+    } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
   }

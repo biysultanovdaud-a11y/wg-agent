@@ -77,7 +77,7 @@ describe("PeerService.createPeer", () => {
     const service = new PeerService(repo, fakeWireGuard(), silentLogger);
 
     const result = await service.createPeer({});
-    
+
     expect(await getMetricValue(metrics.peerCreations)).toBeGreaterThan(0);
 
     expect(result.ip).toBe("10.8.0.2");

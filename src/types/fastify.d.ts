@@ -5,8 +5,7 @@ declare module "fastify" {
   interface FastifyInstance {
     peerService: PeerService;
   }
-interface FastifyRequest {
+  interface FastifyRequest {
     startTime?: bigint;
   }
 }
-

@@ -6,10 +6,7 @@ export interface ReadyResponse {
   status: "ready";
 }
 
-export async function getReady(
-  _request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function getReady(_request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const repo = new WireGuardConfigRepository(env.WG_CONFIG_PATH);
 

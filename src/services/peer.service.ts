@@ -21,13 +21,13 @@ export class PeerService {
 
   async listPeers(): Promise<PeerSummary[]> {
     const config = await this.configRepo.read();
-metrics.peerCount.set(config.peers.length);
+    metrics.peerCount.set(config.peers.length);
     return config.peers.map((peer) => ({ label: peer.label, publicKey: peer.publicKey, allowedIps: peer.allowedIps }));
   }
 
   async getPeer(publicKey: string): Promise<PeerSummary> {
     const config = await this.configRepo.read();
-metrics.peerCount.set(config.peers.length);
+    metrics.peerCount.set(config.peers.length);
     const peer = config.peers.find((p) => p.publicKey === publicKey);
     if (!peer) throw new NotFoundError(`No peer with public key ${publicKey}`);
     return { label: peer.label, publicKey: peer.publicKey, allowedIps: peer.allowedIps };
@@ -59,8 +59,8 @@ metrics.peerCount.set(config.peers.length);
     };
 
     await this.applyConfig(nextConfig);
-metrics.peerCount.set(nextConfig.peers.length);
-metrics.peerCreations.inc();
+    metrics.peerCount.set(nextConfig.peers.length);
+    metrics.peerCreations.inc();
 
     const serverPublicKey = await this.wireguard.derivePublicKey(extractInterfacePrivateKey(config.interfaceBlock));
     const clientConfig = renderClientConfig({
@@ -88,10 +88,9 @@ metrics.peerCreations.inc();
     };
 
     await this.applyConfig(nextConfig);
-metrics.peerCount.set(nextConfig.peers.length);
-metrics.peerDeletions.inc();
+    metrics.peerCount.set(nextConfig.peers.length);
+    metrics.peerDeletions.inc();
   }
-
 
   /**
    * Writes the new config atomically (see atomic-file: temp file, `wg-quick

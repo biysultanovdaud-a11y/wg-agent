@@ -49,11 +49,7 @@ describe("Peers routes", () => {
 
     const peers = list.json();
 
-    expect(
-      peers.some((peer: { publicKey: string }) =>
-        peer.publicKey === created.publicKey
-      )
-    ).toBe(true);
+    expect(peers.some((peer: { publicKey: string }) => peer.publicKey === created.publicKey)).toBe(true);
 
     const get = await app.inject({
       method: "GET",
