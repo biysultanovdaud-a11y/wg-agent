@@ -7,6 +7,7 @@ import { PeerService } from "../src/services/peer.service";
 import { WireGuardConfigRepository } from "../src/repositories/wireguard-config.repository";
 import type { WireGuardService } from "../src/services/wireguard.service";
 import { ConflictError, NotFoundError } from "../src/utils/errors";
+import { metrics } from "../src/metrics/registry";
 
 /**
  * A stand-in for WireGuardService that never shells out to a real `wg`
@@ -65,6 +66,10 @@ afterEach(async () => {
 // enough, cast through unknown since it doesn't implement Pino's full
 // FastifyBaseLogger surface (child, level, etc.), which nothing here needs.
 const silentLogger = { error: vi.fn(), info: vi.fn(), warn: vi.fn() } as unknown as FastifyBaseLogger;
+async function getMetricValue(metric: { get: () => Promise<{ values: Array<{ value: number }> }> }): Promise<number> {
+  const result = await metric.get();
+  return result.values[0]?.value ?? 0;
+}
 
 describe("PeerService.createPeer", () => {
   it("generates a keypair, allocates the first free IP, writes it to disk, and returns a full result", async () => {
@@ -72,6 +77,8 @@ describe("PeerService.createPeer", () => {
     const service = new PeerService(repo, fakeWireGuard(), silentLogger);
 
     const result = await service.createPeer({});
+    
+    expect(await getMetricValue(metrics.peerCreations)).toBeGreaterThan(0);
 
     expect(result.ip).toBe("10.8.0.2");
     expect(result.publicKey).toBe("FAKE-PUBLIC-1");
@@ -143,6 +150,8 @@ describe("PeerService.deletePeer", () => {
     const created = await service.createPeer({});
 
     await service.deletePeer(created.publicKey);
+
+    expect(await getMetricValue(metrics.peerDeletions)).toBeGreaterThan(0);
 
     const peers = await service.listPeers();
     expect(peers.find((p) => p.publicKey === created.publicKey)).toBeUndefined();
