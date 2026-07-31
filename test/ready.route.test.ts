@@ -1,8 +1,9 @@
+import { writeFile, mkdir } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
-import { buildServer } from "../src/server";
 
 describe("GET /ready", () => {
   it("returns 401 without an Authorization header", async () => {
+    const { buildServer } = await import("../src/server");
     const app = buildServer();
 
     const res = await app.inject({
@@ -16,6 +17,13 @@ describe("GET /ready", () => {
   });
 
   it("returns 200 with the correct API key", async () => {
+    await mkdir("/tmp/wg-agent-test", { recursive: true });
+
+    await writeFile("/tmp/wg-agent-test/wg0.conf", "[Interface]\nPrivateKey = test\nAddress = 10.8.0.1/24\n");
+
+    process.env.WG_CONFIG_PATH = "/tmp/wg-agent-test/wg0.conf";
+
+    const { buildServer } = await import("../src/server");
     const app = buildServer();
 
     const res = await app.inject({
