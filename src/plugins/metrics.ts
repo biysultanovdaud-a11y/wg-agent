@@ -3,8 +3,9 @@ import type { FastifyPluginCallback } from "fastify";
 import { metrics } from "../metrics/registry";
 
 const metricsPlugin: FastifyPluginCallback = (app, _opts, done) => {
-  app.addHook("onRequest", async (request) => {
+  app.addHook("onRequest", (request, _reply, done) => {
     request.startTime = process.hrtime.bigint();
+    done();
   });
   app.addHook("onResponse", async (request, reply) => {
     const start = request.startTime;

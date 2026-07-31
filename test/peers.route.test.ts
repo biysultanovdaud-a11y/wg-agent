@@ -33,7 +33,13 @@ describe("Peers routes", () => {
 
     expect(create.statusCode).toBe(201);
 
-    const created = create.json();
+    const created: {
+      publicKey: string;
+      privateKey: string;
+      presharedKey: string;
+      ip: string;
+      config: string;
+    } = create.json();
 
     expect(created.publicKey).toBeDefined();
     expect(created.privateKey).toBeDefined();
@@ -47,9 +53,13 @@ describe("Peers routes", () => {
 
     expect(list.statusCode).toBe(200);
 
-    const peers = list.json();
+    const peers: Array<{
+      publicKey: string;
+      allowedIps: string;
+      label?: string;
+    }> = list.json();
 
-    expect(peers.some((peer: { publicKey: string }) => peer.publicKey === created.publicKey)).toBe(true);
+    expect(peers.some((peer) => peer.publicKey === created.publicKey)).toBe(true);
 
     const get = await app.inject({
       method: "GET",
@@ -58,7 +68,14 @@ describe("Peers routes", () => {
     });
 
     expect(get.statusCode).toBe(200);
-    expect(get.json().publicKey).toBe(created.publicKey);
+
+    const fetched: {
+      publicKey: string;
+      allowedIps: string;
+      label?: string;
+    } = get.json();
+
+    expect(fetched.publicKey).toBe(created.publicKey);
 
     const remove = await app.inject({
       method: "DELETE",
