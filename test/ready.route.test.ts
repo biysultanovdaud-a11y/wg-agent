@@ -1,5 +1,9 @@
 import { writeFile, mkdir } from "node:fs/promises";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+beforeEach(() => {
+  vi.resetModules();
+});
 
 describe("GET /ready", () => {
   it("returns 401 without an Authorization header", async () => {
@@ -21,7 +25,7 @@ describe("GET /ready", () => {
 
     await writeFile("/tmp/wg-agent-test/wg0.conf", "[Interface]\nPrivateKey = test\nAddress = 10.8.0.1/24\n");
 
-    process.env.WG_CONFIG_PATH = "/tmp/wg-agent-test/wg0.conf";
+    vi.stubEnv("WG_CONFIG_PATH", "/tmp/wg-agent-test/wg0.conf");
 
     const { buildServer } = await import("../src/server");
     const app = buildServer();

@@ -1,8 +1,39 @@
-import { describe, expect, it } from "vitest";
-import { buildServer } from "../src/server";
+import { mkdir, writeFile } from "node:fs/promises";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("../src/services/wireguard.service", () => {
+  return {
+    WireGuardService: class {
+      generatePrivateKey(): string {
+        return "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      }
+
+      derivePublicKey(privateKey: string): string {
+        if (privateKey === "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=") {
+          return "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=";
+        }
+
+        return "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC=";
+      }
+
+      generatePresharedKey(): string {
+        return "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD=";
+      }
+
+      validateConfigFile(): void {}
+
+      reload(): void {}
+    },
+  };
+});
+
+beforeEach(() => {
+  vi.resetModules();
+});
 
 describe("Peers routes", () => {
   it("returns 401 without API key", async () => {
+    const { buildServer } = await import("../src/server");
     const app = buildServer();
 
     const res = await app.inject({
@@ -16,6 +47,13 @@ describe("Peers routes", () => {
   });
 
   it("creates, lists, gets and deletes a peer", async () => {
+    await mkdir("/tmp/wg-agent-test", { recursive: true });
+
+    await writeFile("/tmp/wg-agent-test/wg0.conf", "[Interface]\nPrivateKey = test\nAddress = 10.8.0.1/24\n");
+
+    vi.stubEnv("WG_CONFIG_PATH", "/tmp/wg-agent-test/wg0.conf");
+
+    const { buildServer } = await import("../src/server");
     const app = buildServer();
 
     const auth = {
